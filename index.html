@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DON^2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="wrapper">
+    <button id="start" class="start">スタート</button>
+
+    <div class="flex">
+        <div class="flex_child">
+            <h2>Player 1</h2>
+            <div id="player1" class="num_box">
+                <p class="num_first">
+                    <span class="hider">？</span>
+                    <span class="inner num"></span>
+                </p>
+                <p class="num_second num"></p>
+            </div>
+            <p class="total"></p>
+            <button class="confirm">数字を確認する</button>
+            <button class="add_num">カードをめくる</button>
+        </div>
+
+        <div class="flex_child">
+            <h2>Player 2</h2>
+            <div id="player2" class="num_box">
+                <p class="num_first">
+                    <span class="hider">？</span>
+                    <span class="inner num"></span>
+                </p>
+                <p class="num_second num"></p>
+            </div>
+            <p class="total"></p>
+            <button class="confirm">数字を確認する</button>
+            <button class="add_num">カードをめくる</button>
+        </div>
+    </div>
+
+    <div id="bustEvent" class="bust_event">
+        <div class="dog_area">
+            <div class="dog_lane">
+                <div class="dog_group">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                </div>
+                <div class="dog_group">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                    <img src="dog.png" alt="走る犬">
+                </div>
+            </div>
+        </div>
+
+        <p class="bust_text">
+            ｸﾞｲｯ
+        </p>
+    </div>
+
+    <button id="finish" class="finish">結果を見る</button>
+</div>
+
+<div id="winnerImage" class="winner_image">
+    <img src="dead.jpg" alt="21達成">
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function(){
+    let numbers = [];
+    let remaining = [];
+
+    function getVisibleSum($player){
+        let visibleSum = 0;
+
+        $player.find(".num_box .num_second, .num_box p:not(.num_first):not(.num_second)").each(function(){
+            let val = parseInt($(this).text(), 10);
+            if(!isNaN(val)) visibleSum += val;
+        });
+
+        return visibleSum;
+    }
+
+    function checkVisibleBust($player){
+        let visibleSum = getVisibleSum($player);
+
+        if(visibleSum > 19){
+            $("#bustEvent").show();
+        }
+    }
+
+    $("#start").on("click", function(){
+        numbers = [];
+
+        while(numbers.length < 4){
+            let num = Math.floor(Math.random() * 11) + 1;
+            if($.inArray(num, numbers) === -1){
+                numbers.push(num);
+            }
+        }
+
+        remaining = [];
+
+        for(let i = 1; i <= 11; i++){
+            if($.inArray(i, numbers) === -1){
+                remaining.push(i);
+            }
+        }
+
+        $(".num_box").find("p:not(.num_first):not(.num_second)").remove();
+
+        $(".num_box .hider").text("？").show();
+        $(".num_box .inner").hide().text("");
+        $(".num_box .num_second").text("");
+        $(".total").text("").css("color", "");
+
+        $("#winnerImage").hide();
+        $("#bustEvent").hide();
+
+        $("#player1 .num_first .inner").text(numbers[0]);
+        $("#player2 .num_first .inner").text(numbers[1]);
+        $("#player1 .num_second").text(numbers[2]);
+        $("#player2 .num_second").text(numbers[3]);
+    });
+
+    $(".add_num").on("click", function(){
+        if(remaining.length === 0) return;
+
+        let index = Math.floor(Math.random() * remaining.length);
+        let num = remaining.splice(index, 1)[0];
+
+        let $player = $(this).closest(".flex_child");
+        let $box = $player.find(".num_box");
+
+        $box.append("<p class='num'>" + num + "</p>");
+
+        checkVisibleBust($player);
+    });
+
+    $(".confirm").on("mousedown touchstart", function(){
+        let $box = $(this).closest(".flex_child");
+        $box.find(".hider").hide();
+        $box.find(".inner").show();
+    });
+
+    $(".confirm").on("mouseup mouseleave touchend touchcancel", function(){
+        let $box = $(this).closest(".flex_child");
+        $box.find(".inner").hide();
+        $box.find(".hider").show();
+    });
+
+    $("#finish").on("click", function(){
+        let has21 = false;
+
+        $(".flex_child").each(function(){
+            let sum = 0;
+
+            $(this).find(".num_box .num").each(function(){
+                let val = parseInt($(this).text(), 10);
+                if(!isNaN(val)) sum += val;
+            });
+
+            let $total = $(this).find(".total");
+            $total.text(sum);
+
+            if(sum === 21){
+                has21 = true;
+                $total.css("color", "#ffd000");
+            } else {
+                $total.css("color", "");
+            }
+
+            $(this).find(".num_first .hider").each(function(){
+                let num = $(this).siblings(".inner").text();
+                $(this).text(num);
+            });
+        });
+
+        if(has21){
+            $("#winnerImage").css("display", "flex");
+        } else {
+            $("#winnerImage").hide();
+        }
+    });
+
+    $("#winnerImage").on("click", function(){
+        $(this).hide();
+    });
+});
+</script>
+</body>
+</html>
