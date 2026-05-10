@@ -169,3 +169,18 @@ button.finish{
         transform: translateX(-50%);
     }
 }
+
+.rainbow{
+    animation: rainbowText 1.5s linear infinite;
+    font-weight: bold;
+}
+
+@keyframes rainbowText{
+    0%   { color: red; }
+    16%  { color: orange; }
+    33%  { color: yellow; }
+    50%  { color: lime; }
+    66%  { color: cyan; }
+    83%  { color: blue; }
+    100% { color: magenta; }
+}
