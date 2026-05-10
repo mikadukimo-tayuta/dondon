@@ -69,8 +69,8 @@
     <button id="finish" class="finish">結果を見る</button>
 </div>
 
-<div id="winnerImage" class="winner_image">
-    <img src="dead.jpg" alt="21達成">
+<div id="doubleWinnerImage" class="winner_image">
+    <img src="dead.jpg" alt="両者21">
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -93,7 +93,7 @@ $(function(){
     function checkVisibleBust($player){
         let visibleSum = getVisibleSum($player);
 
-        if(visibleSum > 19){
+        if(visibleSum > 20){
             $("#bustEvent").show();
         }
     }
@@ -121,10 +121,10 @@ $(function(){
         $(".num_box .hider").text("？").show();
         $(".num_box .inner").hide().text("");
         $(".num_box .num_second").text("");
-        $(".total").text("").css("color", "");
+        $(".total").text("").removeClass("rainbow");
 
-        $("#winnerImage").hide();
         $("#bustEvent").hide();
+        $("#doubleWinnerImage").hide();
 
         $("#player1 .num_first .inner").text(numbers[0]);
         $("#player2 .num_first .inner").text(numbers[1]);
@@ -159,7 +159,7 @@ $(function(){
     });
 
     $("#finish").on("click", function(){
-        let has21 = false;
+        let sums = [];
 
         $(".flex_child").each(function(){
             let sum = 0;
@@ -169,14 +169,13 @@ $(function(){
                 if(!isNaN(val)) sum += val;
             });
 
+            sums.push(sum);
+
             let $total = $(this).find(".total");
-            $total.text(sum);
+            $total.text(sum).removeClass("rainbow");
 
             if(sum === 21){
-                has21 = true;
-                $total.css("color", "#ffd000");
-            } else {
-                $total.css("color", "");
+                $total.addClass("rainbow");
             }
 
             $(this).find(".num_first .hider").each(function(){
@@ -185,14 +184,14 @@ $(function(){
             });
         });
 
-        if(has21){
-            $("#winnerImage").css("display", "flex");
+        if(sums[0] === 21 && sums[1] === 21){
+            $("#doubleWinnerImage").css("display", "flex");
         } else {
-            $("#winnerImage").hide();
+            $("#doubleWinnerImage").hide();
         }
     });
 
-    $("#winnerImage").on("click", function(){
+    $("#doubleWinnerImage").on("click", function(){
         $(this).hide();
     });
 });
